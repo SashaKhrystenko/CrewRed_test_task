@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="CrewRedTestTask.Repositories/CrewRedTestTask.Repositories.csproj" Id="40d906d6-5f30-44ac-9a74-81c97082c523" />
+  <Project Path="CrewRedTestTask.Services/CrewRedTestTask.Services.csproj" />
+  <Project Path="CrewRedTestTask.Database/CrewRedTestTask.Database.csproj" Id="dc7142aa-d24c-4fc8-8fa7-df001c9a6a6d" />
+  <Project Path="CrewRedTestTask.Entities/CrewRedTestTask.Entities.csproj" Id="94c151f7-9c74-42ec-bc13-528313bfb3d9" />
+  <Project Path="CrewRedTestTask.Models/CrewRedTestTask.Models.csproj" Id="6bb7b33b-eca5-4123-b24d-763c5a25978a" />
+  <Project Path="CrewRedTestTask/CrewredTestTask.csproj" />
+</Solution>
