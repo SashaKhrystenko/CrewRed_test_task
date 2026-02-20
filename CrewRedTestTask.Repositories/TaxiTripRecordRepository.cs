@@ -1,6 +1,8 @@
 ﻿using CrewRedTestTask.Database.Interfaces;
 using CrewRedTestTask.Entities;
 using CrewRedTestTask.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace CrewRedTestTask.Repositories
 {
@@ -24,9 +26,12 @@ namespace CrewRedTestTask.Repositories
                 throw new ArgumentNullException(nameof(newTaxiTripRecords), $"{nameof(newTaxiTripRecords)} is null.");
             }
 
-            TaxiTripRecordEntity[] existingTaxiRecords = _taxiDbContext.TaxiTripRecords.ToArray();
+            TaxiTripRecordEntity[] existingTaxiRecords = _taxiDbContext.TaxiTripRecords
+                .AsNoTracking()
+                .ToArray()
+            ;
 
-            TaxiTripRecordEntity[] newRecordsForAdding = existingTaxiRecords.Where(newRecord =>
+            TaxiTripRecordEntity[] newRecordsForAdding = newTaxiTripRecords.Where(newRecord =>
                 !existingTaxiRecords.Any(oldRecord =>
                     oldRecord.TpepPickupDateTime == newRecord.TpepPickupDateTime
                     && oldRecord.TpepDropoffDateTime == newRecord.TpepDropoffDateTime
@@ -36,9 +41,23 @@ namespace CrewRedTestTask.Repositories
                 .ToArray()
             ;
 
-            _taxiDbContext.TaxiTripRecords.AddRange(newRecordsForAdding);
+            using (var transaction = _taxiDbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    _taxiDbContext.TaxiTripRecords.AddRange(newRecordsForAdding);
 
-            _taxiDbContext.SaveChanges();
+                    _taxiDbContext.SaveChanges();
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
         }
     }
 }

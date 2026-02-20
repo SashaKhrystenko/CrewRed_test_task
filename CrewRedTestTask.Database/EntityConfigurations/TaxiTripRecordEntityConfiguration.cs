@@ -18,6 +18,16 @@ namespace CrewRedTestTask.Database.EntityConfigurations
             ;
 
             builder
+                .HasIndex(index => new
+                {
+                    index.TpepPickupDateTime,
+                    index.TpepDropoffDateTime,
+                    index.PassangerCount
+                })
+                .IsUnique()
+            ;
+
+            builder
                 .Property(record => record.TpepPickupDateTime)
                 .HasColumnName("tpep_pickup_datetime")
                 .IsRequired()
