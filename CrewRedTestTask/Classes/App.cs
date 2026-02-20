@@ -8,6 +8,11 @@ namespace CrewredTestTask.Classes
 {
     public class App
     {
+        private static readonly string _dataFolderPath = Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName;
+
+        private readonly string _dublicateFilePath = $"{_dataFolderPath}\\DataFolder\\Dublicates.csv";
+        private readonly string _errorDataFilePath = $"{_dataFolderPath}\\DataFolder\\ErrorData.csv";
+
         private readonly ITaxiTripRecordService _taxiTripRecordService;
 
         public App(ITaxiTripRecordService taxiTripRecordService)
@@ -23,7 +28,6 @@ namespace CrewredTestTask.Classes
         public void Run()
         {
             string csvFilePath;
-            string csvFilePathForDublicateData;
 
             Console.WriteLine("Enter the path of csv file.");
 
@@ -48,36 +52,15 @@ namespace CrewredTestTask.Classes
                 break;
             }
 
-            Console.WriteLine($"Write csv file path to save dublicate data.");
-
-            while (true)
-            {
-                csvFilePathForDublicateData = Console.ReadLine();
-
-                if (!Path.Exists(Path.GetDirectoryName(csvFilePath)))
-                {
-                    Console.WriteLine($"The directory with this path '{Path.GetDirectoryName(csvFilePath)}' does not exist.");
-
-                    continue;
-                }
-
-                if (Path.GetExtension(csvFilePathForDublicateData) != CsvWorker.CsvFileExtension)
-                {
-                    Console.WriteLine("File is not csv. Please enter the correct path of csv file.");
-
-                    continue;
-                }
-
-                break;
-            }
-
             CsvReaderResult taxiTripRecords = CsvWorker.ReadTaxiTripRecords(csvFilePath);
 
             _taxiTripRecordService.AddRange(taxiTripRecords.UniqueRecords);
 
-            CsvWorker.WriteTaxiTripRecords(csvFilePathForDublicateData, taxiTripRecords.DuplicateRecords);
+            CsvWorker.WriteTaxiTripRecords(_dublicateFilePath, taxiTripRecords.DuplicateRecords);
+            CsvWorker.WriteErrorRows(_errorDataFilePath, taxiTripRecords.ErrorRows);
 
             Console.WriteLine("Data is transver to database");
+            Console.WriteLine("Files with dublicate and error records is located in DataFolder inside project.");
         }
     }
 }

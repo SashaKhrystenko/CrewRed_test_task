@@ -2,16 +2,16 @@
 {
     public class TaxiTripRecordModel
     {
-        public int? VendorID { get; set; }
+        public int VendorID { get; set; }
         public DateTime TpepPickupDateTime { get; set; }
         public DateTime TpepDropoffDatetime { get; set; }
-        public int? PassengerCount { get; set; }
+        public int PassengerCount { get; set; }
         public decimal TripDistance { get; set; }
-        public int? RatecodeID { get; set; }
-        public string? StoreAndFwdFlag { get; set; }
+        public int RatecodeID { get; set; }
+        public string StoreAndFwdFlag { get; set; }
         public int PULocationID { get; set; }
         public int DOLocationID { get; set; }
-        public int? PaymentType { get; set; }
+        public int PaymentType { get; set; }
         public decimal FareAmount { get; set; }
         public decimal Extra { get; set; }
         public decimal MtaTax { get; set; }

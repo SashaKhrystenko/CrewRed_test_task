@@ -42,6 +42,7 @@ namespace CrewRedTestTask.Database.EntityConfigurations
             builder
                 .Property(record => record.PassangerCount)
                 .HasColumnName("passenger_count")
+                .IsRequired()
             ;
 
             builder
@@ -53,6 +54,7 @@ namespace CrewRedTestTask.Database.EntityConfigurations
             builder
                 .Property(record => record.StoreAndFwdFlag)
                 .HasColumnName("store_and_fwd_flag")
+                .IsRequired()
             ;
 
             builder

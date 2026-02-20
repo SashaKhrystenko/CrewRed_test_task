@@ -16,7 +16,7 @@ namespace CrewRedTestTask.Services.Mappers
             {
                 TpepPickupDateTime = model.TpepPickupDateTime,
                 TpepDropoffDateTime = model.TpepDropoffDatetime,
-                PassangerCount = ConvertNullableInt(model.PassengerCount),
+                PassangerCount = model.PassengerCount,
                 TripDistance = model.TripDistance,
                 StoreAndFwdFlag = ConvertFlag(model.StoreAndFwdFlag),
                 PULocationID = model.PULocationID,
@@ -61,16 +61,6 @@ namespace CrewRedTestTask.Services.Mappers
                 default:
                     return flag;  //Here we can also throw an exception if the flag has an unexpected value, but I decided to return the original value cuz I don't know the business logic.
             }
-        }
-
-        private static int? ConvertNullableInt(int? value)
-        {
-            if (value == null)
-            {
-                return 0; //Here we can also throw an exception if the int has an unexpected value, but I decided to return the original value cuz I don't know the business logic.
-            }
-
-            return value;
         }
     }
 }

@@ -10,6 +10,7 @@ namespace CrewredTestTask.Structures
 
         private readonly List<TaxiTripRecordModel> _uniqueRecords;
         private readonly List<TaxiTripRecordModel> _duplicateRecords;
+        private readonly List<string> _errorRows;
 
         public List<TaxiTripRecordModel> UniqueRecords
         {
@@ -27,12 +28,21 @@ namespace CrewredTestTask.Structures
             }
         }
 
+        public List<string> ErrorRows
+        {
+            get
+            {
+                return _errorRows;
+            }
+        }
+
         public CsvReaderResult()
         {
             _uniqueRecordKeyes = new HashSet<(DateTime, DateTime, int?)>();
 
             _uniqueRecords = new List<TaxiTripRecordModel>();
             _duplicateRecords = new List<TaxiTripRecordModel>();
+            _errorRows = new List<string>();
         }
 
         public void Update(TaxiTripRecordModel record)
@@ -52,6 +62,16 @@ namespace CrewredTestTask.Structures
             {
                 _duplicateRecords.Add(record);
             }
+        }
+
+        public void AddErrorRow(string errorRow)
+        {
+            if (errorRow == null)
+            {
+                throw new ArgumentNullException(nameof(errorRow), $"{nameof(errorRow)} is null.");
+            }
+
+            _errorRows.Add(errorRow);
         }
     }
 }
