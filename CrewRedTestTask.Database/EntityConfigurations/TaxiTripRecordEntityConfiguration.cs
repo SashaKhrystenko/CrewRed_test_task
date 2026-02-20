@@ -9,6 +9,15 @@ namespace CrewRedTestTask.Database.EntityConfigurations
         public void Configure(EntityTypeBuilder<TaxiTripRecordEntity> builder)
         {
             builder
+                .HasKey(record => new
+                {
+                    record.TpepPickupDateTime,
+                    record.TpepDropoffDateTime,
+                    record.PassangerCount
+                })
+            ;
+
+            builder
                 .Property(record => record.TpepPickupDateTime)
                 .HasColumnName("tpep_pickup_datetime")
                 .IsRequired()

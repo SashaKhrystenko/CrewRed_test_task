@@ -1,10 +1,8 @@
 ﻿using CrewredTestTask.Csv;
-using CrewRedTestTask.Models;
+using CrewredTestTask.Structures;
 using CrewRedTestTask.Services.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace CrewredTestTask.Classes
 {
@@ -24,9 +22,10 @@ namespace CrewredTestTask.Classes
 
         public void Run()
         {
-            Console.WriteLine("Enter the path of csv file.");
-
             string csvFilePath;
+            string csvFilePathForDublicateData;
+
+            Console.WriteLine("Enter the path of csv file.");
 
             while (true)
             {
@@ -49,13 +48,35 @@ namespace CrewredTestTask.Classes
                 break;
             }
 
-            IEnumerable<TaxiTripRecordModel> taxiTripRecords = CsvWorker.ReadTaxiTripRecords(csvFilePath);
+            Console.WriteLine($"Write csv file path to save dublicate data.");
 
-            int i = taxiTripRecords.Where(r => string.IsNullOrEmpty(r.StoreAndFwdFlag)).Count();
+            while (true)
+            {
+                csvFilePathForDublicateData = Console.ReadLine();
 
-            _taxiTripRecordService.AddRange(taxiTripRecords);
+                if (!Path.Exists(Path.GetDirectoryName(csvFilePath)))
+                {
+                    Console.WriteLine($"The directory with this path '{Path.GetDirectoryName(csvFilePath)}' does not exist.");
 
-            Console.WriteLine(i);
+                    continue;
+                }
+
+                if (Path.GetExtension(csvFilePathForDublicateData) != CsvWorker.CsvFileExtension)
+                {
+                    Console.WriteLine("File is not csv. Please enter the correct path of csv file.");
+
+                    continue;
+                }
+
+                break;
+            }
+
+            CsvReaderResult taxiTripRecords = CsvWorker.ReadTaxiTripRecords(csvFilePath);
+
+            _taxiTripRecordService.AddRange(taxiTripRecords.UniqueRecords);
+
+            CsvWorker.WriteTaxiTripRecords(csvFilePathForDublicateData, taxiTripRecords.DuplicateRecords);
+
             Console.WriteLine("Data is transver to database");
         }
     }

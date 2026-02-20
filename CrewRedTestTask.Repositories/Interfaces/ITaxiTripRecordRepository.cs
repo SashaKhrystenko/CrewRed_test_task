@@ -4,6 +4,6 @@ namespace CrewRedTestTask.Repositories.Interfaces
 {
     public interface ITaxiTripRecordRepository
     {
-        public void AddRange(IEnumerable<TaxiTripRecordEntity> taxiTripRecords);
+        public void AddRange(IReadOnlyList<TaxiTripRecordEntity> taxiTripRecords);
     }
 }

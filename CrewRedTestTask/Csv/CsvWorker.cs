@@ -1,4 +1,5 @@
 ﻿using CrewredTestTask.Csv.Mappers;
+using CrewredTestTask.Structures;
 using CrewRedTestTask.Models;
 using CsvHelper;
 using System;
@@ -12,7 +13,7 @@ namespace CrewredTestTask.Csv
     {
         public const string CsvFileExtension = ".csv";
 
-        public static IEnumerable<TaxiTripRecordModel> ReadTaxiTripRecords(string csvFilePath)
+        public static CsvReaderResult ReadTaxiTripRecords(string csvFilePath)
         {
             if (csvFilePath == null)
             {
@@ -29,7 +30,7 @@ namespace CrewredTestTask.Csv
                 throw new InvalidDataException($"The file must have {CsvFileExtension} extension.");
             }
 
-            List<TaxiTripRecordModel> records = new();
+            CsvReaderResult csvReaderResult = new();
 
             using (StreamReader streamReader = new(csvFilePath))
             {
@@ -39,12 +40,52 @@ namespace CrewredTestTask.Csv
 
                     while (csvReader.Read())
                     {
-                        records.Add(csvReader.GetRecord<TaxiTripRecordModel>());
+                        csvReaderResult.Update(csvReader.GetRecord<TaxiTripRecordModel>());
                     }
                 }
             }
 
-            return records;
+            return csvReaderResult;
+        }
+
+        public static void WriteTaxiTripRecords(string csvFilePath, IEnumerable<TaxiTripRecordModel> taxiTripRecords)
+        {
+            if (csvFilePath == null)
+            {
+                throw new ArgumentNullException(nameof(csvFilePath), $"{nameof(csvFilePath)} is null.");
+            }
+
+            if (!Path.Exists(Path.GetDirectoryName(csvFilePath)))
+            {
+                throw new DirectoryNotFoundException($"The directory with this path '{Path.GetDirectoryName(csvFilePath)}' does not exist.");
+            }
+
+            if (Path.GetExtension(csvFilePath) != CsvFileExtension)
+            {
+                throw new InvalidDataException($"The file must have {CsvFileExtension} extension.");
+            }
+
+            if (taxiTripRecords == null)
+            {
+                throw new ArgumentNullException(nameof(taxiTripRecords), $"{nameof(taxiTripRecords)} is null.");
+            }
+
+            using (StreamWriter streamWriter = new(csvFilePath))
+            {
+                using (CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture))
+                {
+                    csvWriter.Context.RegisterClassMap<TaxiTripRecordMap>();
+
+                    csvWriter.WriteHeader<TaxiTripRecordModel>();
+                    csvWriter.NextRecord();
+
+                    foreach (TaxiTripRecordModel record in taxiTripRecords)
+                    {
+                        csvWriter.WriteRecord(record);
+                        csvWriter.NextRecord();
+                    }
+                }
+            }
         }
     }
 }
