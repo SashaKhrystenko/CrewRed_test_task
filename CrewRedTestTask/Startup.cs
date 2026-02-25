@@ -5,6 +5,7 @@ using CrewRedTestTask.Repositories;
 using CrewRedTestTask.Repositories.Interfaces;
 using CrewRedTestTask.Services;
 using CrewRedTestTask.Services.Interfaces;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,7 @@ namespace CrewredTestTask
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
             );
 
+            services.AddSingleton(configuration.GetSection("BulkConfig").Get<BulkConfig>());
             services.AddSingleton<App>();
 
             services.AddScoped<ITaxiDbContext, TaxiDbContext>();

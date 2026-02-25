@@ -1,22 +1,31 @@
 ﻿using CrewRedTestTask.Database.Interfaces;
 using CrewRedTestTask.Entities;
 using CrewRedTestTask.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
+using EFCore.BulkExtensions;
 
 namespace CrewRedTestTask.Repositories
 {
     public class TaxiTripRecordRepository : ITaxiTripRecordRepository
     {
+        private readonly BulkConfig _bulkConfig;
+
         private readonly ITaxiDbContext _taxiDbContext;
-        public TaxiTripRecordRepository(ITaxiDbContext taxiDbContext)
+
+        public TaxiTripRecordRepository(ITaxiDbContext taxiDbContext, BulkConfig bulkConfig)
         {
             if (taxiDbContext == null)
             {
                 throw new ArgumentNullException(nameof(taxiDbContext), $"{nameof(taxiDbContext)} is null.");
             }
 
+            if (bulkConfig == null)
+            {
+                throw new ArgumentNullException(nameof(bulkConfig), $"{nameof(bulkConfig)} is null.");
+
+            }
+
             _taxiDbContext = taxiDbContext;
+            _bulkConfig = bulkConfig;
         }
 
         public void AddRange(IReadOnlyList<TaxiTripRecordEntity> newTaxiTripRecords)
@@ -26,26 +35,11 @@ namespace CrewRedTestTask.Repositories
                 throw new ArgumentNullException(nameof(newTaxiTripRecords), $"{nameof(newTaxiTripRecords)} is null.");
             }
 
-            TaxiTripRecordEntity[] existingTaxiRecords = _taxiDbContext.TaxiTripRecords
-                .AsNoTracking()
-                .ToArray()
-            ;
-
-            TaxiTripRecordEntity[] newRecordsForAdding = newTaxiTripRecords.Where(newRecord =>
-                !existingTaxiRecords.Any(oldRecord =>
-                    oldRecord.TpepPickupDateTime == newRecord.TpepPickupDateTime
-                    && oldRecord.TpepDropoffDateTime == newRecord.TpepDropoffDateTime
-                    && oldRecord.PassangerCount == newRecord.PassangerCount
-                )
-            )
-                .ToArray()
-            ;
-
             using (var transaction = _taxiDbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    _taxiDbContext.TaxiTripRecords.AddRange(newRecordsForAdding);
+                    _taxiDbContext.BulkRecordsInsertSkippingDublicates(newTaxiTripRecords, _bulkConfig);
 
                     _taxiDbContext.SaveChanges();
 
