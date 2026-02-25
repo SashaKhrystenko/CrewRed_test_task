@@ -8,7 +8,7 @@ namespace CrewRedTestTask
     {
         static void Main(string[] args)
         {
-            Startup.ServiceProvider.GetRequiredService<App>().Run();
+            Startup.ServiceProvider.GetRequiredService<App>().Run(args);
         }
     }
 }

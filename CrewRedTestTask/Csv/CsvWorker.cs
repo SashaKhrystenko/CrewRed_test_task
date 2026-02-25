@@ -35,6 +35,7 @@ namespace CrewredTestTask.Csv
 
             CsvConfiguration csvReaderConfiguration = new(CultureInfo.InvariantCulture)
             {
+                TrimOptions = TrimOptions.Trim,
                 ReadingExceptionOccurred = ex =>
                 {
                     csvReaderResult.AddErrorRow(ex.Exception.Context.Parser.RawRecord);

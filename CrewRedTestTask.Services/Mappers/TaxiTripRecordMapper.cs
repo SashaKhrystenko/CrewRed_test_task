@@ -5,6 +5,23 @@ namespace CrewRedTestTask.Services.Mappers
 {
     public class TaxiTripRecordMapper
     {
+        private const string _windowsUstTimeZoneInfoId = "Eastern Standard Time";
+        private const string _otherOSUstTimeZoneInfoId = "America/New_York";
+
+        private static readonly TimeZoneInfo _ustTimeZoneInfo;
+
+        static TaxiTripRecordMapper()
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                _ustTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(_windowsUstTimeZoneInfoId);
+            }
+            else
+            {
+                _ustTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(_otherOSUstTimeZoneInfoId);
+            }
+        }
+
         public static TaxiTripRecordEntity GetEntity(TaxiTripRecordModel model)
         {
             if (model == null)
@@ -14,8 +31,8 @@ namespace CrewRedTestTask.Services.Mappers
 
             return new TaxiTripRecordEntity
             {
-                TpepPickupDateTime = model.TpepPickupDateTime,
-                TpepDropoffDateTime = model.TpepDropoffDatetime,
+                TpepPickupDateTime = TimeZoneInfo.ConvertTimeToUtc(model.TpepPickupDateTime, _ustTimeZoneInfo),
+                TpepDropoffDateTime = TimeZoneInfo.ConvertTimeToUtc(model.TpepDropoffDatetime, _ustTimeZoneInfo),
                 PassangerCount = model.PassengerCount,
                 TripDistance = model.TripDistance,
                 StoreAndFwdFlag = ConvertFlag(model.StoreAndFwdFlag),
@@ -59,7 +76,7 @@ namespace CrewRedTestTask.Services.Mappers
                     return "No";
 
                 default:
-                    return flag;  //Here we can also throw an exception if the flag has an unexpected value, but I decided to return the original value cuz I don't know the business logic.
+                    throw new ArgumentOutOfRangeException(nameof(flag), "Invalid flag format.");
             }
         }
     }

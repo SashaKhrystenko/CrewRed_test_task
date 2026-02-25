@@ -8,11 +8,6 @@ namespace CrewredTestTask.Classes
 {
     public class App
     {
-        private static readonly string _dataFolderPath = Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName;
-
-        private readonly string _dublicateFilePath = $"{_dataFolderPath}\\DataFolder\\Dublicates.csv";
-        private readonly string _errorDataFilePath = $"{_dataFolderPath}\\DataFolder\\ErrorData.csv";
-
         private readonly ITaxiTripRecordService _taxiTripRecordService;
 
         public App(ITaxiTripRecordService taxiTripRecordService)
@@ -25,11 +20,33 @@ namespace CrewredTestTask.Classes
             _taxiTripRecordService = taxiTripRecordService;
         }
 
-        public void Run()
+        public void Run(string[] args)
+        {
+            if (!TryGetPathFromArgs(args, out string csvFilePath))
+            {
+                Console.WriteLine("Enter the path to csv file.");
+
+                csvFilePath = GetFromConsole();
+            }
+
+            string basePath = Path.GetDirectoryName(csvFilePath);
+            string dublicateFilePath = Path.Combine(basePath, "Dublicates.csv");
+            string errorDataFilePath = Path.Combine(basePath, "ErrorData.csv");
+
+            CsvReaderResult taxiTripRecords = CsvWorker.ReadTaxiTripRecords(csvFilePath);
+
+            _taxiTripRecordService.AddRange(taxiTripRecords.UniqueRecords);
+
+            CsvWorker.WriteTaxiTripRecords(dublicateFilePath, taxiTripRecords.DuplicateRecords);
+            CsvWorker.WriteErrorRows(errorDataFilePath, taxiTripRecords.ErrorRows);
+
+            Console.WriteLine("Data is transver to database");
+            Console.WriteLine("Files with duplicate and error records is located in source data file directory.");
+        }
+
+        private static string GetFromConsole()
         {
             string csvFilePath;
-
-            Console.WriteLine("Enter the path of csv file.");
 
             while (true)
             {
@@ -49,18 +66,32 @@ namespace CrewredTestTask.Classes
                     continue;
                 }
 
-                break;
+                return csvFilePath;
+            }
+        }
+
+        private static bool TryGetPathFromArgs(string[] args, out string csvFilePath)
+        {
+            csvFilePath = string.Empty;
+
+            if (args == null || args.Length == 0)
+            {
+                return false;
             }
 
-            CsvReaderResult taxiTripRecords = CsvWorker.ReadTaxiTripRecords(csvFilePath);
+            foreach (string arg in args)
+            {
+                if (File.Exists(arg))
+                {
+                    csvFilePath = arg;
 
-            _taxiTripRecordService.AddRange(taxiTripRecords.UniqueRecords);
+                    return true;
+                }
+            }
 
-            CsvWorker.WriteTaxiTripRecords(_dublicateFilePath, taxiTripRecords.DuplicateRecords);
-            CsvWorker.WriteErrorRows(_errorDataFilePath, taxiTripRecords.ErrorRows);
+            Console.WriteLine("Invalid file path.");
 
-            Console.WriteLine("Data is transver to database");
-            Console.WriteLine("Files with dublicate and error records is located in DataFolder inside project.");
+            return false;
         }
     }
 }
